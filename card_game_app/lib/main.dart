@@ -1,47 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Added
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'generated/l10n.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Generated file - current S.delegate is similar
+// import 'app_router.dart'; // Assuming app_router.dart is created
+// import 'features/rummy_game/presentation/providers/locale_provider.dart'; // Assuming locale_provider.dart is created
 
 void main() {
-  runApp(ProviderScope(child: MyApp()));
+  runApp(
+    const ProviderScope( // Added const
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(localeProvider);
+    // final locale = ref.watch(localeProvider); // Watch the locale provider - Commented out as per prompt
+
     return MaterialApp(
-      locale: locale,
-      localizationsDelegates: [
-        S.delegate, // Your generated AppLocalizations delegate
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: S.delegate.supportedLocales,
-      title: 'Cards',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      // title: 'Card Game App', // Will be set by AppLocalizations
+      // theme: ThemeData(
+      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      //   useMaterial3: true, // This was not in the original prompt's target but is good to keep
+      // ),
+      // locale: locale, // Set the locale
+      // localizationsDelegates: AppLocalizations.localizationsDelegates, // Commented out
+      // localizationsDelegates: [ // Current setup, to be commented
+      //   S.delegate, 
+      //   GlobalMaterialLocalizations.delegate,
+      //   GlobalWidgetsLocalizations.delegate,
+      //   GlobalCupertinoLocalizations.delegate,
+      // ],
+      // supportedLocales: AppLocalizations.supportedLocales, // Commented out
+      // supportedLocales: S.delegate.supportedLocales, // Current setup, to be commented
+      // onGenerateRoute: AppRouter.generateRoute, // Optional: if using a router
+      
+      // Placeholder until other files are fully integrated
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Card Game App')),
+        body: const Center(child: Text('Setup in progress...')),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // Remove the direct MyHomePage instantiation if using a router or specific initial screen.
     );
   }
 }
@@ -64,58 +66,30 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+// Keep MyHomePage or remove if it's no longer the entry point / being replaced by router
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _counter++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary, // Keep or modify theme
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+            const Text(
+              'You have pushed the button this many times:',
+            ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
@@ -127,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
