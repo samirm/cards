@@ -9,32 +9,26 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get gameTitle => 'Jeu de Rami';
+  String get appTitle => 'Card Game App';
 
   @override
-  String get drawCard => 'Piocher';
+  String get mainMenuNewGame => 'New Game';
 
   @override
-  String get discardPile => 'Défausse';
+  String get mainMenuOptions => 'Options';
 
   @override
-  String get yourTurn => 'À votre tour';
+  String get mainMenuAbout => 'About';
 
   @override
-  String get suitHearts => 'Cœurs';
+  String get mainMenuTitle => 'Main Menu';
 
   @override
-  String get suitDiamonds => 'Diamonds';
+  String get newGamePageTitle => 'New Game';
 
   @override
-  String get suitClubs => 'Clubs';
+  String get optionsPageTitle => 'Options';
 
   @override
-  String get suitSpades => 'Spades';
-
-  @override
-  String get rankAce => 'Ace';
-
-  @override
-  String get rankKing => 'King';
+  String get aboutPageTitle => 'About';
 }

@@ -113,65 +113,53 @@ abstract class AppLocalizations {
     Locale('zh')
   ];
 
-  /// No description provided for @gameTitle.
+  /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Rummy Game'**
-  String get gameTitle;
+  /// **'Card Game App'**
+  String get appTitle;
 
-  /// No description provided for @drawCard.
+  /// No description provided for @mainMenuNewGame.
   ///
   /// In en, this message translates to:
-  /// **'Draw Card'**
-  String get drawCard;
+  /// **'New Game'**
+  String get mainMenuNewGame;
 
-  /// No description provided for @discardPile.
+  /// No description provided for @mainMenuOptions.
   ///
   /// In en, this message translates to:
-  /// **'Discard Pile'**
-  String get discardPile;
+  /// **'Options'**
+  String get mainMenuOptions;
 
-  /// No description provided for @yourTurn.
+  /// No description provided for @mainMenuAbout.
   ///
   /// In en, this message translates to:
-  /// **'Your Turn'**
-  String get yourTurn;
+  /// **'About'**
+  String get mainMenuAbout;
 
-  /// No description provided for @suitHearts.
+  /// No description provided for @mainMenuTitle.
   ///
   /// In en, this message translates to:
-  /// **'Hearts'**
-  String get suitHearts;
+  /// **'Main Menu'**
+  String get mainMenuTitle;
 
-  /// No description provided for @suitDiamonds.
+  /// No description provided for @newGamePageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Diamonds'**
-  String get suitDiamonds;
+  /// **'New Game'**
+  String get newGamePageTitle;
 
-  /// No description provided for @suitClubs.
+  /// No description provided for @optionsPageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Clubs'**
-  String get suitClubs;
+  /// **'Options'**
+  String get optionsPageTitle;
 
-  /// No description provided for @suitSpades.
+  /// No description provided for @aboutPageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Spades'**
-  String get suitSpades;
-
-  /// No description provided for @rankAce.
-  ///
-  /// In en, this message translates to:
-  /// **'Ace'**
-  String get rankAce;
-
-  /// No description provided for @rankKing.
-  ///
-  /// In en, this message translates to:
-  /// **'King'**
-  String get rankKing;
+  /// **'About'**
+  String get aboutPageTitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

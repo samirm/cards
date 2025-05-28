@@ -9,32 +9,26 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get gameTitle => 'Rummy Game';
+  String get appTitle => 'Card Game App';
 
   @override
-  String get drawCard => 'Draw Card';
+  String get mainMenuNewGame => 'New Game';
 
   @override
-  String get discardPile => 'Discard Pile';
+  String get mainMenuOptions => 'Options';
 
   @override
-  String get yourTurn => 'Your Turn';
+  String get mainMenuAbout => 'About';
 
   @override
-  String get suitHearts => 'Hearts';
+  String get mainMenuTitle => 'Main Menu';
 
   @override
-  String get suitDiamonds => 'Diamonds';
+  String get newGamePageTitle => 'New Game';
 
   @override
-  String get suitClubs => 'Clubs';
+  String get optionsPageTitle => 'Options';
 
   @override
-  String get suitSpades => 'Spades';
-
-  @override
-  String get rankAce => 'Ace';
-
-  @override
-  String get rankKing => 'King';
+  String get aboutPageTitle => 'About';
 }
