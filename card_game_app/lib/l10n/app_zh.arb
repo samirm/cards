@@ -5,7 +5,12 @@
   "mainMenuOptions": "Options",
   "mainMenuAbout": "About",
   "mainMenuTitle": "Main Menu",
-  "newGamePageTitle": "New Game",
+  "newGamePageTitle": "Select Game Type",
   "optionsPageTitle": "Options",
-  "aboutPageTitle": "About"
+  "aboutPageTitle": "About",
+  "gameTypeSelectionTitle": "Select Game Type",
+  "gameTypeRummy": "Rummy",
+  "gameTypeSolitaire": "Solitaire",
+  "gameTypeDurak": "Durak",
+  "rummyGameTitle": "Rummy"
 }
