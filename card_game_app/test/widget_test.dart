@@ -6,7 +6,7 @@ import 'package:card_game_app/features/main_menu/presentation/pages/main_menu_pa
 import 'package:card_game_app/features/new_game/presentation/pages/new_game_page.dart';
 import 'package:card_game_app/features/options/presentation/pages/options_page.dart';
 import 'package:card_game_app/features/about/presentation/pages/about_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:card_game_app/l10n/app_localizations.dart';
 
 void main() {
   // Helper function to pump the app with localization and routing

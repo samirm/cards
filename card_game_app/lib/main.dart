@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Added
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Generated file - current S.delegate is similar
+import 'package:card_game_app/l10n/app_localizations.dart'; // Generated file - current S.delegate is similar
 import 'app_router.dart'; // Assuming app_router.dart is created
 // import 'features/rummy_game/presentation/providers/locale_provider.dart'; // Assuming locale_provider.dart is created
 

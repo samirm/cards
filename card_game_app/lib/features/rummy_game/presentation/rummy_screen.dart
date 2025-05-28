@@ -1,5 +1,5 @@
 // import 'package:flutter/material.dart';
-// // import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // For localization
+// // import 'package:card_game_app/l10n/app_localizations.dart'; // For localization
 // // import 'widgets/player_hand_widget.dart';
 // // import 'widgets/discard_pile_widget.dart';
 // // import 'widgets/stock_pile_widget.dart';
