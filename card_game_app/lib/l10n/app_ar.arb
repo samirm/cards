@@ -1,5 +1,12 @@
 {
   "@@locale": "ar",
   "@@script": "Arab",
-  "appTitle": "Card Game App"
+  "appTitle": "Card Game App",
+  "mainMenuNewGame": "New Game",
+  "mainMenuOptions": "Options",
+  "mainMenuAbout": "About",
+  "mainMenuTitle": "Main Menu",
+  "newGamePageTitle": "New Game",
+  "optionsPageTitle": "Options",
+  "aboutPageTitle": "About"
 }
