@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:card_game_app/l10n/app_localizations.dart';
 import 'package:card_game_app/core/models/deck.dart';
 import 'package:card_game_app/core/models/playing_card.dart';
 import 'package:card_game_app/core/widgets/playing_card_widget.dart';
