@@ -42,18 +42,21 @@ Color getSuitColor(Suit suit) {
 }
 
 class PlayingCardWidget extends StatelessWidget {
+  static const double defaultWidth = 60.0;
+  static const double defaultHeight = 90.0;
+
   final PlayingCard? card;
   final bool isFaceUp;
   final double width;
   final double height;
 
   const PlayingCardWidget({
-    super.key, // Changed from Key? key
+    super.key, 
     this.card,
     this.isFaceUp = true,
-    this.width = 60.0,
-    this.height = 90.0,
-  }); // : super(key: key); // Removed super(key:key) as it's handled by super.key
+    this.width = defaultWidth, 
+    this.height = defaultHeight, 
+  });
 
   @override
   Widget build(BuildContext context) {

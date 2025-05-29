@@ -64,7 +64,7 @@ class _RummyGamePageState extends State<RummyGamePage> with SingleTickerProvider
 
     return Container(
       padding: const EdgeInsets.all(8.0),
-      height: 90.0 + 16, // Card height (default 90.0) + padding
+      height: PlayingCardWidget.defaultHeight + 16, // Card height + padding
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
