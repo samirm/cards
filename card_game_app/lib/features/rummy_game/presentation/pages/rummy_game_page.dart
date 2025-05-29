@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:card_game_app/l10n/app_localizations.dart';
 import 'package:card_game_app/core/models/deck.dart';
 import 'package:card_game_app/core/models/playing_card.dart';
 import 'package:card_game_app/core/widgets/playing_card_widget.dart';
@@ -64,7 +64,7 @@ class _RummyGamePageState extends State<RummyGamePage> with SingleTickerProvider
 
     return Container(
       padding: const EdgeInsets.all(8.0),
-      height: PlayingCardWidget.defaultHeight + 16, // Card height + padding
+      height: 90.0 + 16, // Card height (default 90.0) + padding
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
