@@ -17,8 +17,7 @@ String getRankSymbol(Rank rank) {
     case Rank.four: return '4';
     case Rank.three: return '3';
     case Rank.two: return '2';
-    default: return rank.toString().split('.').last[0].toUpperCase();
-  }
+    }
 }
 
 String getSuitSymbol(Suit suit) {
@@ -27,8 +26,7 @@ String getSuitSymbol(Suit suit) {
     case Suit.diamonds: return '♦';
     case Suit.clubs: return '♣';
     case Suit.spades: return '♠';
-    default: return '?';
-  }
+    }
 }
 
 Color getSuitColor(Suit suit) {
@@ -42,9 +40,8 @@ Color getSuitColor(Suit suit) {
 }
 
 class PlayingCardWidget extends StatelessWidget {
-  static const double defaultWidth = 60.0;
-  static const double defaultHeight = 90.0;
-
+  static const double defaultHeight = 90;
+  static const double defaultWidth = 60;
   final PlayingCard? card;
   final bool isFaceUp;
   final double width;
@@ -69,7 +66,7 @@ class PlayingCardWidget extends StatelessWidget {
         border: Border.all(color: Colors.black, width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(1, 1),

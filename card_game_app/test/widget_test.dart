@@ -9,7 +9,7 @@ import 'package:card_game_app/features/rummy_game/presentation/pages/rummy_game_
 import 'package:card_game_app/core/widgets/playing_card_widget.dart';
 import 'package:card_game_app/features/options/presentation/pages/options_page.dart';
 import 'package:card_game_app/features/about/presentation/pages/about_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:card_game_app/l10n/app_localizations.dart';
 
 void main() {
   // Helper function to pump the app with localization and routing
