@@ -4,7 +4,11 @@ import 'package:card_game_app/core/models/deck.dart';
 import 'package:card_game_app/core/models/playing_card.dart';
 import 'package:card_game_app/core/widgets/playing_card_widget.dart';
 
+import 'dart:math'; // For Random
+
 // Removed AnimatedCardData class
+
+enum Player { user, opponent } // Added Player Enum
 
 class RummyGamePage extends StatefulWidget {
   const RummyGamePage({super.key});
@@ -13,13 +17,18 @@ class RummyGamePage extends StatefulWidget {
   State<RummyGamePage> createState() => _RummyGamePageState();
 }
 
-class _RummyGamePageState extends State<RummyGamePage> with SingleTickerProviderStateMixin {
+class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateMixin { // Changed to TickerProviderStateMixin
   late Deck _deck;
   List<PlayingCard> _playerHandCards = []; // Stores all 10 cards for player
   List<PlayingCard> _opponentHandCards = []; // Stores all 10 cards for opponent
+  List<PlayingCard> _discardPile = []; 
 
   late AnimationController _dealingAnimationController;
   late Animation<int> _currentCardDealingAnimation;
+
+  Player? _currentPlayer; // Added
+  late AnimationController _turnIndicatorAnimationController; // Added
+  late Animation<double> _turnIndicatorAnimation; // Added
   
   @override
   void initState() {
@@ -27,23 +36,41 @@ class _RummyGamePageState extends State<RummyGamePage> with SingleTickerProvider
     _deck = Deck();
     _deck.shuffle();
 
-    // Deal cards upfront to stable lists
     _playerHandCards = _deck.deal(10);
     _opponentHandCards = _deck.deal(10);
 
     _dealingAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 3000), // e.g., 150ms per card for 20 cards
+      duration: const Duration(milliseconds: 3000), 
       vsync: this,
     );
+
+    _turnIndicatorAnimationController = AnimationController( // Initialized
+      duration: const Duration(milliseconds: 750),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _turnIndicatorAnimation = Tween<double>(begin: 0.0, end: 6.0).animate( // Initialized
+      CurvedAnimation(parent: _turnIndicatorAnimationController, curve: Curves.easeInOut),
+    )..addListener(() { setState(() {}); }); // Added listener for turn indicator
 
     _currentCardDealingAnimation = IntTween(begin: 0, end: 19).animate(_dealingAnimationController)
       ..addListener(() {
         setState(() {
-          // This will trigger build, which will use the animation value
-          // to determine how many cards to show from _playerHandCards and _opponentHandCards
+          // This will trigger build
         });
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          if (!_deck.isEmpty) {
+             // Temporarily remove setState from discard pile for clarity, will be covered by currentPlayer setState
+            _discardPile.add(_deck.dealOne()!);
+          }
+          // Determine first player
+          final random = Random();
+          _currentPlayer = random.nextBool() ? Player.user : Player.opponent;
+          setState(() {}); // This will trigger rebuild with currentPlayer and discardPile
+        }
       });
-      // Removed addStatusListener for this simplified animation
 
     _dealingAnimationController.forward();
   }
@@ -51,67 +78,174 @@ class _RummyGamePageState extends State<RummyGamePage> with SingleTickerProvider
   @override
   void dispose() {
     _dealingAnimationController.dispose();
+    _turnIndicatorAnimationController.dispose(); // Disposed
     super.dispose();
   }
 
-  Widget _buildHandUI(List<PlayingCard> handCards, int cardsToShow, bool isPlayerHand) {
+  Widget _buildHandUI(List<PlayingCard> handCards, int cardsToShow, Player handOwner, bool isPlayerHandType) {
     List<PlayingCard> visibleCards = [];
     if (cardsToShow > 0 && cardsToShow <= handCards.length) {
       visibleCards = handCards.sublist(0, cardsToShow);
     } else if (cardsToShow > handCards.length) {
-      visibleCards = handCards; // Show all if animation value somehow exceeds count
+      visibleCards = handCards; 
     }
 
-    return Container(
+    bool isCurrentPlayer = _currentPlayer == handOwner;
+
+    Widget handRow = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: visibleCards.map((card) {
+        Widget cardWidgetInstance = Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: PlayingCardWidget(
+            card: card,
+            isFaceUp: isPlayerHandType,
+          ),
+        );
+
+        if (isPlayerHandType) { // Draggable only for player's actual hand
+          return DragTarget<PlayingCard>(
+            builder: (context, candidateData, rejectedData) {
+              return Draggable<PlayingCard>(
+                data: card,
+                feedback: PlayingCardWidget(
+                  card: card,
+                  isFaceUp: true,
+                  height: PlayingCardWidget.defaultHeight * 1.1,
+                  width: PlayingCardWidget.defaultWidth * 1.1,
+                ),
+                childWhenDragging: SizedBox(
+                  width: PlayingCardWidget.defaultWidth + 8,
+                  height: PlayingCardWidget.defaultHeight,
+                ),
+                child: cardWidgetInstance,
+              );
+            },
+            onWillAcceptWithDetails: (details) => details.data != card,
+            onAcceptWithDetails: (details) {
+              final draggedCard = details.data;
+              final targetCard = card;
+              final oldIndex = _playerHandCards.indexOf(draggedCard);
+              final newIndex = _playerHandCards.indexOf(targetCard);
+
+              if (oldIndex != -1 && newIndex != -1) {
+                setState(() {
+                  _playerHandCards.removeAt(oldIndex);
+                  if (oldIndex < newIndex) {
+                    _playerHandCards.insert(newIndex - 1, draggedCard);
+                  } else {
+                    _playerHandCards.insert(newIndex, draggedCard);
+                  }
+                  _dealingAnimationController.forward(from: _dealingAnimationController.upperBound);
+                });
+              }
+            },
+          );
+        } else {
+          return cardWidgetInstance;
+        }
+      }).toList(),
+    );
+
+    Widget handContainer = Container(
+      key: (handOwner == Player.user) ? const Key('player_hand_container') : const Key('opponent_hand_container'),
       padding: const EdgeInsets.all(8.0),
-      height: PlayingCardWidget.defaultHeight + 16, // Card height + padding
+      height: PlayingCardWidget.defaultHeight + 16 + (isPlayerHandType ? 20 : 0),
+      decoration: isCurrentPlayer ? BoxDecoration( // Animated shadow for current player
+        boxShadow: [
+          BoxShadow(
+            color: Colors.yellow.withOpacity(0.3 + (_turnIndicatorAnimation.value / 25.0)), // Animate opacity
+            blurRadius: 5 + _turnIndicatorAnimation.value,
+            spreadRadius: _turnIndicatorAnimation.value / 3,
+          ),
+        ],
+        borderRadius: BorderRadius.circular(12), // Optional: to make shadow look nice around the hand
+      ) : null,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: visibleCards.map((card) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: PlayingCardWidget(
-                card: card,
-                isFaceUp: isPlayerHand,
-              ),
-            );
-          }).toList(),
-        ),
+        child: handRow,
       ),
     );
+    
+    if (isCurrentPlayer) {
+      return Transform.translate(
+        offset: Offset(0, -_turnIndicatorAnimation.value / 1.5), // Lift effect
+        child: handContainer,
+      );
+    }
+    return handContainer;
   }
 
   @override
   Widget build(BuildContext context) {
     int animationValue = _currentCardDealingAnimation.value;
+    bool dealingComplete = !_dealingAnimationController.isAnimating || _dealingAnimationController.value == _dealingAnimationController.upperBound;
 
-    // Determine number of cards to show for player
-    int numPlayerCardsToShow = 0;
-    if (animationValue >= 0) { // Card 0 is player's first
-      numPlayerCardsToShow = (animationValue / 2).floor() + 1;
-    }
-    if (numPlayerCardsToShow > 10) numPlayerCardsToShow = 10;
+    int numPlayerCardsToShow = dealingComplete ? _playerHandCards.length : (animationValue >= 0 ? (animationValue / 2).floor() + 1 : 0);
+    if (numPlayerCardsToShow > _playerHandCards.length) numPlayerCardsToShow = _playerHandCards.length;
 
-    // Determine number of cards to show for opponent
-    int numOpponentCardsToShow = 0;
-    if (animationValue >= 1) { // Card 1 is opponent's first
-       numOpponentCardsToShow = ((animationValue -1) / 2).floor() + 1;
-    }
-    if (numOpponentCardsToShow > 10) numOpponentCardsToShow = 10;
-
+    int numOpponentCardsToShow = dealingComplete ? _opponentHandCards.length : (animationValue >= 1 ? ((animationValue - 1) / 2).floor() + 1 : 0);
+    if (numOpponentCardsToShow > _opponentHandCards.length) numOpponentCardsToShow = _opponentHandCards.length;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.rummyGameTitle),
       ),
-      backgroundColor: const Color(0xFF35654d), // Green felt color
+      backgroundColor: const Color(0xFF35654d), 
       body: Column(
         children: <Widget>[
           // Opponent's Hand (Top)
-          _buildHandUI(_opponentHandCards, numOpponentCardsToShow, false),
-          const Spacer(), // Pushes opponent's hand to top, player's to bottom
+          _buildHandUI(_opponentHandCards, numOpponentCardsToShow, Player.opponent, false),
+          
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                // Discard Pile
+                if (_discardPile.isNotEmpty)
+                  SizedBox( // Added SizedBox for Key
+                    key: const Key('discard_pile_area'),
+                    child: PlayingCardWidget(
+                      card: _discardPile.last, // Show the top card
+                      isFaceUp: true,
+                    ),
+                  )
+                else
+                  // Placeholder for empty discard pile
+                  Container(
+                    width: PlayingCardWidget.defaultWidth,
+                    height: PlayingCardWidget.defaultHeight,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white54),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Center(child: Text(AppLocalizations.of(context)!.emptyDiscardPlaceholder, style: const TextStyle(color: Colors.white70, fontSize: 10))),
+                  ),
+
+                // Deck
+                if (!_deck.isEmpty)
+                  SizedBox( // Added SizedBox for Key
+                    key: const Key('deck_area'),
+                    child: PlayingCardWidget(
+                      // card: null, // No specific card for deck back, widget handles null card as face down
+                      isFaceUp: false, // Deck is face down
+                    ),
+                  )
+                else
+                  // Placeholder for empty deck
+                  Container(
+                     width: PlayingCardWidget.defaultWidth,
+                    height: PlayingCardWidget.defaultHeight,
+                     decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white24),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Center(child: Text(AppLocalizations.of(context)!.emptyDeckPlaceholder, style: const TextStyle(color: Colors.white38, fontSize: 10))),
+                  ),
+              ],
+            ),
+          ),
+          
           // Player's Hand (Bottom)
           _buildHandUI(_playerHandCards, numPlayerCardsToShow, true),
         ],

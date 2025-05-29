@@ -31,6 +31,14 @@ class Deck {
     return dealtCards;
   }
 
+  // Method dealOne(): Removes and returns a single card from the end of _cards, or null if empty.
+  PlayingCard? dealOne() {
+    if (_cards.isEmpty) {
+      return null;
+    }
+    return _cards.removeLast();
+  }
+
   // Optional helper method isEmpty():
   // Returns true if the deck has no cards.
   bool get isEmpty => _cards.isEmpty;
