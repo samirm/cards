@@ -1,6 +1,6 @@
 // import 'package:flutter/material.dart';
 // // import '../../../../core/models/playing_card_model.dart'; // Assuming PlayingCard model
-// // import 'package:card_game_app/l10n/app_localizations.dart'; // For localization
+// // import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // For localization
 
 // class PlayingCardWidget extends StatelessWidget {
 //   // final PlayingCard card;
