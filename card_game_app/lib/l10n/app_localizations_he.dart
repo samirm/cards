@@ -24,26 +24,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get mainMenuTitle => 'Main Menu';
 
   @override
-  String get newGamePageTitle => 'Select Game Type';
+  String get newGamePageTitle => 'New Game';
 
   @override
   String get optionsPageTitle => 'Options';
 
   @override
   String get aboutPageTitle => 'About';
-
-  @override
-  String get gameTypeSelectionTitle => 'Select Game Type';
-
-  @override
-  String get gameTypeRummy => 'Rummy';
-
-  @override
-  String get gameTypeSolitaire => 'Solitaire';
-
-  @override
-  String get gameTypeDurak => 'Durak';
-
-  @override
-  String get rummyGameTitle => 'Rummy';
 }
