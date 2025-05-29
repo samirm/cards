@@ -13,5 +13,7 @@
   "gameTypeRummy": "Rummy",
   "gameTypeSolitaire": "Solitaire",
   "gameTypeDurak": "Durak",
-  "rummyGameTitle": "Rummy"
+  "rummyGameTitle": "Rummy",
+  "emptyDeckPlaceholder": "Empty Deck",
+  "emptyDiscardPlaceholder": "Empty Discard Pile"
 }
