@@ -186,7 +186,6 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
               padding: EdgeInsets.only(left: endTargetLeftPadding, right: baseHorizontalPadding),
               child: Container(
                 width: PlayingCardWidget.defaultWidth / 2,
-              height: PlayingCardWidget.defaultHeight,
                 height: PlayingCardWidget.defaultHeight,
                 decoration: BoxDecoration(
                   border: candidateData.isNotEmpty ? Border.all(color: Colors.yellow.withOpacity(0.5), width: 2) : null,

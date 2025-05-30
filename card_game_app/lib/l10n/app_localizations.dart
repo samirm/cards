@@ -146,7 +146,7 @@ abstract class AppLocalizations {
   /// No description provided for @newGamePageTitle.
   ///
   /// In en, this message translates to:
-  /// **'New Game'**
+  /// **'Select Game Type'**
   String get newGamePageTitle;
 
   /// No description provided for @optionsPageTitle.
@@ -160,6 +160,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get aboutPageTitle;
+
+  /// No description provided for @gameTypeSelectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Game Type'**
+  String get gameTypeSelectionTitle;
+
+  /// No description provided for @gameTypeRummy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rummy'**
+  String get gameTypeRummy;
+
+  /// No description provided for @gameTypeSolitaire.
+  ///
+  /// In en, this message translates to:
+  /// **'Solitaire'**
+  String get gameTypeSolitaire;
+
+  /// No description provided for @gameTypeDurak.
+  ///
+  /// In en, this message translates to:
+  /// **'Durak'**
+  String get gameTypeDurak;
+
+  /// No description provided for @rummyGameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rummy'**
+  String get rummyGameTitle;
+
+  /// No description provided for @emptyDeckPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Deck'**
+  String get emptyDeckPlaceholder;
+
+  /// No description provided for @emptyDiscardPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Discard Pile'**
+  String get emptyDiscardPlaceholder;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

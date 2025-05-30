@@ -24,11 +24,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get mainMenuTitle => 'Main Menu';
 
   @override
-  String get newGamePageTitle => 'New Game';
+  String get newGamePageTitle => 'Select Game Type';
 
   @override
   String get optionsPageTitle => 'Options';
 
   @override
   String get aboutPageTitle => 'About';
+
+  @override
+  String get gameTypeSelectionTitle => 'Select Game Type';
+
+  @override
+  String get gameTypeRummy => 'Rummy';
+
+  @override
+  String get gameTypeSolitaire => 'Solitaire';
+
+  @override
+  String get gameTypeDurak => 'Durak';
+
+  @override
+  String get rummyGameTitle => 'Rummy';
+
+  @override
+  String get emptyDeckPlaceholder => 'Empty Deck';
+
+  @override
+  String get emptyDiscardPlaceholder => 'Empty Discard Pile';
 }
