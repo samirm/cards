@@ -8,7 +8,8 @@ import 'dart:math'; // For Random
 
 // Removed AnimatedCardData class
 
-enum Player { user, opponent } // Added Player Enum
+enum Player { user, opponent }
+enum TurnPhase { draw, play, discard } // Added TurnPhase Enum
 
 class RummyGamePage extends StatefulWidget {
   const RummyGamePage({super.key});
@@ -21,16 +22,23 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
   late Deck _deck;
   List<PlayingCard> _playerHandCards = []; // Stores all 10 cards for player
   List<PlayingCard> _opponentHandCards = []; // Stores all 10 cards for opponent
-  List<PlayingCard> _discardPile = []; 
+  List<PlayingCard> _discardPile = [];
 
   late AnimationController _dealingAnimationController;
   late Animation<int> _currentCardDealingAnimation;
 
-  Player? _currentPlayer; 
-  late AnimationController _turnIndicatorAnimationController; 
-  late Animation<double> _turnIndicatorAnimation; 
-  int? _dragHoverTargetIndex; // Added state for hover index
-  
+  Player? _currentPlayer;
+  late AnimationController _turnIndicatorAnimationController;
+  late Animation<double> _turnIndicatorAnimation;
+  int? _dragHoverTargetIndex;
+  PlayingCard? _selectedCardForDiscard; // Added for discard selection
+
+  TurnPhase _currentTurnPhase = TurnPhase.draw;
+  final Map<Player, List<List<PlayingCard>>> _meldedCards = {
+    Player.user: [],
+    Player.opponent: [],
+  };
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +49,7 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
     _opponentHandCards = _deck.deal(10);
 
     _dealingAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 3000), 
+      duration: const Duration(milliseconds: 3000),
       vsync: this,
     );
 
@@ -88,10 +96,11 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
     if (cardsToShow > 0 && cardsToShow <= handCards.length) {
       visibleCards = handCards.sublist(0, cardsToShow);
     } else if (cardsToShow > handCards.length) {
-      visibleCards = handCards; 
+      visibleCards = handCards;
     }
 
-    bool isCurrentPlayer = _currentPlayer == handOwner;
+    bool isCurrentPlayerTurnPhasePlay = _currentPlayer == handOwner && _currentTurnPhase == TurnPhase.play;
+    bool isCurrentPlayer = _currentPlayer == handOwner; // For turn indicator
     const double baseHorizontalPadding = 4.0;
     const double shiftAmount = PlayingCardWidget.defaultWidth / 2; // How much cards shift
 
@@ -103,23 +112,52 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
       if (isPlayerHandType && _dragHoverTargetIndex != null && index >= _dragHoverTargetIndex!) {
         currentLeftPadding += shiftAmount;
       }
-      
-      Widget cardWidgetInstance = AnimatedPadding(
+
+      Widget playingCardWidget = PlayingCardWidget(
+        card: card,
+        isFaceUp: isPlayerHandType,
+      );
+
+      Widget cardDisplayWidget;
+      if (isPlayerHandType) {
+        bool isSelectedToDiscard = _selectedCardForDiscard == card;
+        cardDisplayWidget = GestureDetector(
+          onTap: () {
+            if (isCurrentPlayerTurnPhasePlay) {
+              setState(() {
+                if (_selectedCardForDiscard == card) {
+                  _selectedCardForDiscard = null; // Toggle off
+                } else {
+                  _selectedCardForDiscard = card; // Select
+                }
+              });
+            }
+          },
+          child: Container(
+            decoration: isSelectedToDiscard ? BoxDecoration(
+              border: Border.all(color: Colors.blue.shade300, width: 3),
+              borderRadius: BorderRadius.circular(PlayingCardWidget.defaultWidth / 10 + 3),
+            ) : null,
+            child: playingCardWidget,
+          ),
+        );
+      } else {
+        cardDisplayWidget = playingCardWidget;
+      }
+
+      Widget cardWithPadding = AnimatedPadding(
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeInOut,
         padding: EdgeInsets.only(left: currentLeftPadding, right: baseHorizontalPadding),
-        child: PlayingCardWidget(
-          card: card,
-          isFaceUp: isPlayerHandType,
-        ),
+        child: cardDisplayWidget, // Use the potentially wrapped widget
       );
 
-      if (isPlayerHandType) { // Draggable only for player's actual hand
+      if (isPlayerHandType) {
         return DragTarget<PlayingCard>(
           builder: (context, candidateData, rejectedData) {
             return Draggable<PlayingCard>(
               data: card,
-                feedback: PlayingCardWidget(
+                feedback: PlayingCardWidget( // Feedback should be the plain card
                   card: card,
                   isFaceUp: true,
                   height: PlayingCardWidget.defaultHeight * 1.1,
@@ -129,26 +167,20 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
                   width: PlayingCardWidget.defaultWidth + 8,
                   height: PlayingCardWidget.defaultHeight,
                 ),
-                child: cardWidgetInstance,
+                    child: cardWithPadding, // Child of Draggable is the padded card (which includes selection highlight)
               );
             },
             onWillAcceptWithDetails: (details) {
-              if (details.data != card) {
-                setState(() {
-                  _dragHoverTargetIndex = index;
-                });
+              if (details.data != card) { // Can't drop on itself without effect
+                setState(() { _dragHoverTargetIndex = index; });
                 return true;
               }
               return false;
             },
-            onLeave: (data) {
-              setState(() {
-                _dragHoverTargetIndex = null;
-              });
-            },
+            onLeave: (data) { setState(() { _dragHoverTargetIndex = null; }); },
             onAcceptWithDetails: (details) {
               final draggedCard = details.data;
-              final targetCard = card; 
+              final targetCard = card;
               final oldIndex = _playerHandCards.indexOf(draggedCard);
               final newIndex = _playerHandCards.indexOf(targetCard);
 
@@ -160,16 +192,16 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
                   } else {
                     _playerHandCards.insert(newIndex, draggedCard);
                   }
-                  _dragHoverTargetIndex = null; // Reset hover index
+                  _dragHoverTargetIndex = null;
                   _dealingAnimationController.forward(from: _dealingAnimationController.upperBound);
                 });
               }
             },
           );
         } else {
-          return cardWidgetInstance;
+          return cardWithPadding; // Opponent's cards are not draggable but still need padding
         }
-      }).toList(); 
+      }).toList();
 
     if (isPlayerHandType) {
       double endTargetLeftPadding = baseHorizontalPadding;
@@ -212,7 +244,7 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
               if (_playerHandCards.contains(draggedCard)) {
                  _playerHandCards.remove(draggedCard);
               }
-              _playerHandCards.add(draggedCard); 
+              _playerHandCards.add(draggedCard);
               _dragHoverTargetIndex = null; // Reset hover index
               _dealingAnimationController.forward(from: _dealingAnimationController.upperBound);
             });
@@ -245,7 +277,7 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
         child: handRow,
       ),
     );
-    
+
     if (isCurrentPlayer) {
       return Transform.translate(
         offset: Offset(0, -_turnIndicatorAnimation.value / 1.5), // Lift effect
@@ -253,6 +285,125 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
       );
     }
     return handContainer;
+  }
+
+  // Player Action Function Signatures
+  void _playerDrawsFromStock() {
+    if (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.draw && !_deck.isEmpty) {
+      setState(() {
+        final drawnCard = _deck.dealOne();
+        if (drawnCard != null) {
+          _playerHandCards.add(drawnCard);
+          _currentTurnPhase = TurnPhase.play; // Or play/discard if that's a combined phase
+        }
+      });
+    } else {
+      // Optional: Show a message or log if draw is not allowed
+      print("Cannot draw from stock: Not user's turn ($_currentPlayer), wrong phase ($_currentTurnPhase), or deck empty (${_deck.isEmpty}).");
+    }
+  }
+
+  void _playerDrawsFromDiscard() {
+    if (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.draw && _discardPile.isNotEmpty) {
+      setState(() {
+        final drawnCard = _discardPile.removeLast();
+        _playerHandCards.add(drawnCard);
+        _currentTurnPhase = TurnPhase.play; // Or play/discard
+      });
+    } else {
+      // Optional: Show a message or log
+      print("Cannot draw from discard: Not user's turn ($_currentPlayer), wrong phase ($_currentTurnPhase), or discard empty (${_discardPile.isEmpty}).");
+    }
+  }
+
+  void _playerDiscardsCard(PlayingCard cardToDiscard) {
+    if (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.play) {
+      if (_playerHandCards.contains(cardToDiscard)) {
+        setState(() {
+          _playerHandCards.remove(cardToDiscard);
+          _discardPile.add(cardToDiscard);
+          _switchToNextPlayer();
+        });
+      } else {
+        print("Error: Card to discard not in player's hand.");
+      }
+    } else {
+      print("Cannot discard: Not user's turn or not in play phase.");
+    }
+  }
+
+  void _playerMeldsCards(List<PlayingCard> cardsToMeld) {
+    // Logic to be implemented (primarily for human player)
+  }
+
+  void _executeAITurn() async {
+    if (_currentPlayer != Player.opponent || !mounted) return;
+
+    // AI Draw Phase
+    await Future.delayed(const Duration(seconds: 1)); // Simulate thinking
+    if (!mounted) return;
+
+    final random = Random();
+    bool drawFromDiscardAI = false;
+    if (_discardPile.isNotEmpty) {
+      drawFromDiscardAI = random.nextBool();
+    }
+
+    PlayingCard? drawnCardAI;
+    if (drawFromDiscardAI) {
+      drawnCardAI = _discardPile.removeLast();
+      print("AI drew from discard: ${drawnCardAI.toString()}");
+    } else {
+      if (!_deck.isEmpty) {
+        drawnCardAI = _deck.dealOne();
+        print("AI drew from stock: ${drawnCardAI.toString()}");
+      } else {
+        print("AI: Stock empty, cannot draw from discard or chose not to.");
+      }
+    }
+
+    if (drawnCardAI != null) {
+      _opponentHandCards.add(drawnCardAI);
+    }
+
+    // Update UI after AI draw & set phase
+    // No immediate setState here, will be covered by discard or if no actions possible
+    _currentTurnPhase = TurnPhase.play;
+    // If AI has complex play logic, it would go here, potentially with more setStates
+    // For now, AI immediately moves to discard after drawing.
+
+    // AI Discard Phase
+    await Future.delayed(const Duration(seconds: 1)); // Simulate thinking
+    if (!mounted) return;
+
+    if (_opponentHandCards.isNotEmpty) {
+      final discardIndexAI = random.nextInt(_opponentHandCards.length);
+      final PlayingCard cardToDiscardAI = _opponentHandCards.removeAt(discardIndexAI);
+      _discardPile.add(cardToDiscardAI);
+      print("AI discarded: ${cardToDiscardAI.toString()}");
+
+      // Now switch turn (this will call setState)
+      _switchToNextPlayer();
+    } else {
+      print("AI has no cards to discard.");
+      // Switch turn even if AI had no cards (e.g. drew its last card and melded everything)
+      _switchToNextPlayer();
+    }
+  }
+
+  void _switchToNextPlayer() {
+    setState(() {
+      if (_currentPlayer == Player.user) {
+        _currentPlayer = Player.opponent;
+        _currentTurnPhase = TurnPhase.draw; // AI starts its turn in draw phase
+        _selectedCardForDiscard = null;
+        _executeAITurn(); // Trigger AI turn
+      } else {
+        _currentPlayer = Player.user;
+        _currentTurnPhase = TurnPhase.draw;
+        _selectedCardForDiscard = null;
+      }
+    });
   }
 
   @override
@@ -270,12 +421,12 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.rummyGameTitle),
       ),
-      backgroundColor: const Color(0xFF35654d), 
+      backgroundColor: const Color(0xFF35654d),
       body: Column(
         children: <Widget>[
           // Opponent's Hand (Top)
           _buildHandUI(_opponentHandCards, numOpponentCardsToShow, Player.opponent, false),
-          
+
           Expanded(
             child: Padding( // Added Padding for some spacing from screen edges
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -283,46 +434,66 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
                 mainAxisAlignment: MainAxisAlignment.start, // Changed to start
                 children: <Widget>[
                   // Deck (now first)
-                  if (!_deck.isEmpty)
-                    SizedBox( 
-                      key: const Key('deck_area'),
-                      child: PlayingCardWidget(
-                        isFaceUp: false, 
-                      ),
-                    )
-                  else
-                    Container(
-                      key: const Key('deck_area'), // Also key the placeholder
-                      width: PlayingCardWidget.defaultWidth,
-                      height: PlayingCardWidget.defaultHeight,
+                  GestureDetector(
+                    onTap: (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.draw && !_deck.isEmpty)
+                           ? _playerDrawsFromStock
+                           : null,
+                    child: Container( // Wrap in container for potential visual cues
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white24),
-                        borderRadius: BorderRadius.circular(8.0),
+                        border: (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.draw && !_deck.isEmpty)
+                                 ? Border.all(color: Colors.yellow.withOpacity(0.7), width: 2)
+                                 : null,
+                        borderRadius: BorderRadius.circular(PlayingCardWidget.defaultWidth / 10), // Consistent with card
                       ),
-                      child: Center(child: Text(AppLocalizations.of(context)!.emptyDeckPlaceholder, style: const TextStyle(color: Colors.white38, fontSize: 10))),
+                      child: (_deck.isEmpty)
+                          ? Container(
+                              key: const Key('deck_area'),
+                              width: PlayingCardWidget.defaultWidth,
+                              height: PlayingCardWidget.defaultHeight,
+                      decoration: BoxDecoration(
+                              border: Border.all(color: Colors.white24),
+                              borderRadius: BorderRadius.circular(8.0),
+                            )
+                          : SizedBox(
+                              key: const Key('deck_area'),
+                              child: PlayingCardWidget(
+                                isFaceUp: false,
+                              ),
+                            ),
+                      ),
                     ),
-                  
+
                   const SizedBox(width: 16), // Spacing
 
                   // Discard Pile (now second)
-                  if (_discardPile.isNotEmpty)
-                    SizedBox( 
-                      key: const Key('discard_pile_area'),
-                      child: PlayingCardWidget(
-                        card: _discardPile.last, 
-                        isFaceUp: true,
+                  GestureDetector(
+                     onTap: (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.draw && _discardPile.isNotEmpty)
+                            ? _playerDrawsFromDiscard
+                            : null,
+                    child: Container( // Wrap for visual cues
+                       decoration: BoxDecoration(
+                        border: (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.draw && _discardPile.isNotEmpty)
+                                 ? Border.all(color: Colors.yellow.withOpacity(0.7), width: 2)
+                                 : null,
+                        borderRadius: BorderRadius.circular(PlayingCardWidget.defaultWidth / 10),
                       ),
-                    )
-                  else
-                    Container(
-                      key: const Key('discard_pile_area'), // Also key the placeholder
-                      width: PlayingCardWidget.defaultWidth,
-                      height: PlayingCardWidget.defaultHeight,
+                      child: (_discardPile.isEmpty)
+                          ? Container(
+                              key: const Key('discard_pile_area'),
+                              width: PlayingCardWidget.defaultWidth,
+                              height: PlayingCardWidget.defaultHeight,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white54),
-                        borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(color: Colors.white54),
+                              borderRadius: BorderRadius.circular(8.0),
+                            )
+                          : SizedBox(
+                              key: const Key('discard_pile_area'),
+                              child: PlayingCardWidget(
+                                card: _discardPile.last,
+                                isFaceUp: true,
+                              ),
+                            ),
                       ),
-                      child: Center(child: Text(AppLocalizations.of(context)!.emptyDiscardPlaceholder, style: const TextStyle(color: Colors.white70, fontSize: 10))),
                     ),
                 ],
               ),
@@ -330,6 +501,18 @@ class _RummyGamePageState extends State<RummyGamePage> with TickerProviderStateM
           ),
           // Player's Hand (Bottom)
           _buildHandUI(_playerHandCards, numPlayerCardsToShow, Player.user, true),
+
+          // Discard Button
+          if (_currentPlayer == Player.user && _currentTurnPhase == TurnPhase.play && _selectedCardForDiscard != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  _playerDiscardsCard(_selectedCardForDiscard!);
+                },
+                child: Text(AppLocalizations.of(context)!.discardButtonText), // Assuming key is added
+              ),
+            ),
         ],
       ),
     );

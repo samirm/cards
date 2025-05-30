@@ -14,5 +14,6 @@
   "gameTypeDurak": "Durak",
   "rummyGameTitle": "Rummy",
   "emptyDeckPlaceholder": "Empty Deck",
-  "emptyDiscardPlaceholder": "Empty Discard Pile"
+  "emptyDiscardPlaceholder": "Empty Discard Pile",
+  "discardButtonText": "Discard Selected"
 }

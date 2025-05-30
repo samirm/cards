@@ -67,7 +67,7 @@ void main() {
       // Verify GameTypeSelectionPage is displayed
       expect(find.byType(GameTypeSelectionPage), findsOneWidget);
       // Title of GameTypeSelectionPage is "Select Game Type"
-      expect(find.text('Select Game Type'), findsOneWidget); 
+      expect(find.text('Select Game Type'), findsOneWidget);
 
       // Verify AppBar and back button
       expect(find.byType(AppBar), findsOneWidget);
@@ -154,7 +154,7 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, 'Rummy'));
       // Allow time for RummyGamePage initState and animation controller to potentially start
       // but not necessarily for the full dealing animation yet.
-      await tester.pumpAndSettle(const Duration(milliseconds: 500)); 
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       // Verify RummyGamePage is displayed
       expect(find.byType(RummyGamePage), findsOneWidget);
