@@ -18,7 +18,25 @@ enum Rank {
   jack,
   queen,
   king,
-  ace,
+  ace;
+
+  int get value {
+    switch (this) {
+      case Rank.two: return 2;
+      case Rank.three: return 3;
+      case Rank.four: return 4;
+      case Rank.five: return 5;
+      case Rank.six: return 6;
+      case Rank.seven: return 7;
+      case Rank.eight: return 8;
+      case Rank.nine: return 9;
+      case Rank.ten: return 10;
+      case Rank.jack: return 11;
+      case Rank.queen: return 12;
+      case Rank.king: return 13;
+      case Rank.ace: return 14; // Ace high by default
+    }
+  }
 }
 
 class PlayingCard {

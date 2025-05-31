@@ -58,7 +58,7 @@ void main() {
       PlayingCardWidget discardCardWidget = tester.widget<PlayingCardWidget>(discardCardWidgetFinder);
       expect(discardCardWidget.isFaceUp, isTrue);
       expect(discardCardWidget.card, isNotNull);
-      
+
       // Verify placeholders are NOT initially visible (using AppLocalizations)
       final BuildContext context = tester.element(find.byType(RummyGamePage));
       expect(find.text(AppLocalizations.of(context)!.emptyDeckPlaceholder, skipOffstage: false), findsNothing);
@@ -109,7 +109,7 @@ void main() {
       final Finder draggableCardFinder = find.byWidgetPredicate(
         (widget) => widget is Draggable<PlayingCard> && widget.data == cardToDrag);
       final Finder endOfHandTargetFinder = find.byKey(const Key('end_of_hand_drag_target'));
-      
+
       expect(endOfHandTargetFinder, findsOneWidget, reason: "End-of-hand drag target not found");
 
       await tester.drag(draggableCardFinder, tester.getCenter(endOfHandTargetFinder));
@@ -128,13 +128,13 @@ void main() {
 
       final Finder draggableCardFinder = find.byWidgetPredicate(
           (widget) => widget is Draggable<PlayingCard> && widget.data == cardToDrag);
-      
+
       // Find the DragTarget associated with the cardToHoverOver (second card)
       // This requires finding the PlayingCardWidget, then its parent Draggable, then its parent DragTarget.
       // For simplicity, we'll find the PlayingCardWidget and use its center.
       final Finder hoverTargetVisualFinder = find.byWidgetPredicate(
           (widget) => widget is PlayingCardWidget && widget.card == cardToHoverOver && widget.isFaceUp == true);
-      
+
       expect(draggableCardFinder, findsOneWidget);
       expect(hoverTargetVisualFinder, findsOneWidget);
 

@@ -51,11 +51,11 @@ class PlayingCardWidget extends StatelessWidget {
   final double height;
 
   const PlayingCardWidget({
-    super.key, 
+    super.key,
     this.card,
     this.isFaceUp = true,
-    this.width = defaultWidth, 
-    this.height = defaultHeight, 
+    this.width = defaultWidth,
+    this.height = defaultHeight,
   });
 
   @override

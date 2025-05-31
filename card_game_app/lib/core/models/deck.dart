@@ -24,7 +24,7 @@ class Deck {
   List<PlayingCard> deal(int numberOfCards) {
     if (numberOfCards > _cards.length) {
       // Or throw an exception, or return all remaining cards
-      numberOfCards = _cards.length; 
+      numberOfCards = _cards.length;
     }
     List<PlayingCard> dealtCards = _cards.sublist(_cards.length - numberOfCards);
     _cards.removeRange(_cards.length - numberOfCards, _cards.length);
